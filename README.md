@@ -12,7 +12,13 @@ branch.
 Example in pipeline
 
 ```
-branchTearDownExecutor jobName: 'my-special-executor'
+//Scripted Pipelines
+properties([branchTearDownExecutor('my-special-job')])
+ 
+//Declarative Pipelines
+options {
+  branchTearDownExecutor 'my-special-job'
+}
 ```
 
 License
