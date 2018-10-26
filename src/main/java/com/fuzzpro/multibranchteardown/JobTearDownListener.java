@@ -27,6 +27,7 @@ package com.fuzzpro.multibranchteardown;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
+import hudson.model.CauseAction;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.Job;
@@ -42,6 +43,7 @@ import jenkins.branch.BranchProjectFactory;
 import jenkins.branch.MultiBranchProject;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
+import jenkins.model.ParameterizedJobMixIn;
 import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.mixin.ChangeRequestSCMHead2;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -59,7 +61,7 @@ public class JobTearDownListener extends ItemListener {
             Job job = (Job) item;
             String branchName = getBranch(item);
             String remoteUrl = getRemote(item);
-            AbstractProject tearDownJob = getTearDownJob(job);
+            ParameterizedJobMixIn.ParameterizedJob tearDownJob = getTearDownJob(job);
             Logger.getLogger(LOGGER).fine(String.format("Job Info: %s %s %s", item.getFullDisplayName(), branchName, remoteUrl));
             if (tearDownJob != null && branchName != null && remoteUrl != null) {
                 Logger.getLogger(LOGGER).fine(String.format("Execute Job: %s %s", branchName, remoteUrl));
@@ -67,13 +69,14 @@ public class JobTearDownListener extends ItemListener {
                 StringParameterValue git_url = new StringParameterValue("git_url", remoteUrl);
                 StringParameterValue branch_name = new StringParameterValue("branch_name", branchName);
                 ParametersAction paramsAction = new ParametersAction(git_url, branch_name);
-                tearDownJob.scheduleBuild2(0, cause, paramsAction);
+                CauseAction causeAction = new CauseAction(cause);
+                tearDownJob.scheduleBuild2(0, causeAction, paramsAction);
             }
             //TODO should we allow other project types for tear-down
         }
     }
 
-    private AbstractProject getTearDownJob(Job job) {
+    private ParameterizedJobMixIn.ParameterizedJob getTearDownJob(Job job) {
         Item tearDownJob;
         JobProperty prop = job.getProperty(JobTearDownProperty.class);
         JobTearDownConfiguration config = GlobalConfiguration.all().get(JobTearDownConfiguration.class);
@@ -91,8 +94,8 @@ public class JobTearDownListener extends ItemListener {
         } else {
             tearDownJob = Jenkins.get().getItemByFullName("job-tear-down-executor");
         }
-        if (tearDownJob instanceof AbstractProject) {
-            return (AbstractProject) tearDownJob;
+        if (tearDownJob instanceof ParameterizedJobMixIn.ParameterizedJob) {
+            return (ParameterizedJobMixIn.ParameterizedJob) tearDownJob;
         }
         return null;
     }
