@@ -143,7 +143,7 @@ public class JobTearDownListenerTest {
 
     private void verifyParameters(WorkflowJob job) {
         WorkflowRun run = job.getLastBuild();
-        Assert.assertEquals(run.number, 2);
+        Assert.assertEquals(run.number, 1);
         ParametersAction action = run.getAction(ParametersAction.class);
         List<ParameterValue> params = action.getAllParameters();
         Assert.assertEquals(params.size(), 2);
