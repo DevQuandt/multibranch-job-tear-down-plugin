@@ -6,7 +6,6 @@ import hudson.model.ParametersAction;
 import jenkins.branch.BranchProperty;
 import jenkins.branch.BranchSource;
 import jenkins.branch.DefaultBranchPropertyStrategy;
-import jenkins.model.ParameterizedJobMixIn;
 import jenkins.plugins.git.GitSCMSource;
 import jenkins.plugins.git.GitSampleRepoRule;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
@@ -18,9 +17,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-
 import java.util.List;
-
 import static org.junit.Assert.fail;
 
 public class JobTearDownListenerTest {
@@ -146,6 +143,7 @@ public class JobTearDownListenerTest {
 
     private void verifyParameters(WorkflowJob job) {
         WorkflowRun run = job.getLastBuild();
+        Assert.assertEquals(run.number, 2);
         ParametersAction action = run.getAction(ParametersAction.class);
         List<ParameterValue> params = action.getAllParameters();
         Assert.assertEquals(params.size(), 2);
