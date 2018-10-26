@@ -1,4 +1,4 @@
-# Multibranch Tear Down
+# Multibranch Tear Down [![Build Status](https://ci.jenkins.io/job/Plugins/job/multibranch-job-tear-down-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/multibranch-job-tear-down-plugin/job/master/)
 
 This plugin only works with Multibranch pipeline projects. When a particular branch is delete this plugin will trigger
 another job with the `git_url` and `branch_name` of the job being deleted. This way you can perform any cleanup
