@@ -16,6 +16,7 @@
         <java.level>8</java.level>
     </properties>
     <name>Multibranch Job Tear Down Plugin</name>
+    <url>https://wiki.jenkins.io/display/JENKINS/Multibranch+Job+Tear+Down+Plugin</url>
     <description>Tear down infrastructure on branch deletion</description>
     <licenses>
         <license>
@@ -26,7 +27,7 @@
 
     <developers>
         <developer>
-            <id>caguilar187</id>
+            <id>fuzzcaguilar</id>
             <name>Cesar Aguilar</name>
             <email>cesar@fuzz.pro</email>
             <organization>Fuzz Productions, LLC</organization>
