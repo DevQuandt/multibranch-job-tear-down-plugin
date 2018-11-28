@@ -15,6 +15,7 @@
     <url>https://wiki.jenkins.io/display/JENKINS/Multibranch+Job+Tear+Down+Plugin</url>
     <description>Tear down infrastructure on branch deletion</description>
     <scm>
+        <developerConnection>scm:git:git@github.com:jenkinsci/multibranch-job-tear-down-plugin.git</developerConnection>
         <connection>scm:git:git://github.com/jenkinsci/multibranch-job-tear-down-plugin.git</connection>
         <url>https://github.com/jenkinsci/multibranch-job-tear-down-plugin</url>
     </scm>
@@ -110,15 +111,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <!-- Assuming you want to host on @jenkinsci:
-    <url>https://wiki.jenkins.io/display/JENKINS/TODO+Plugin</url>
-    <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-    </scm>
-    -->
+    
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
