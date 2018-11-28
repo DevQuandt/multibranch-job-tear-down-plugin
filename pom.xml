@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.fuzzpro.jenkins-plugins</groupId>
     <artifactId>multibranch-job-tear-down</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Multibranch Job Tear Down Plugin</name>
     <url>https://wiki.jenkins.io/display/JENKINS/Multibranch+Job+Tear+Down+Plugin</url>
@@ -127,8 +127,4 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-
-  <scm>
-    <tag>multibranch-job-tear-down-1.0</tag>
-  </scm>
 </project>
