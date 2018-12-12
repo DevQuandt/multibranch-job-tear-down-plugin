@@ -11,12 +11,17 @@ import jenkins.plugins.git.GitSampleRepoRule;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import org.jenkinsci.plugins.workflow.libs.GlobalLibraries;
+import org.jenkinsci.plugins.workflow.libs.LibraryConfiguration;
+import org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import static org.junit.Assert.fail;
 
@@ -105,6 +110,19 @@ public class JobTearDownListenerTest {
         verifyParameters(pipelineJob);
     }
 
+    @Test
+    public void teardownIgnoredGlobalSharedLibraries() throws Exception {
+        WorkflowJob tearDownJob = j.jenkins.createProject(WorkflowJob.class, DEFAULT_JOB);
+        addGlobalLibrary();
+        WorkflowJob p = createBasicJob();
+
+        Assert.assertEquals(tearDownJob.getNextBuildNumber(), 1);
+        j.assertBuildStatusSuccess(p.scheduleBuild2(0).get());
+        p.delete();
+        Assert.assertEquals(tearDownJob.getNextBuildNumber(), 2);
+        verifyParameters(tearDownJob);
+    }
+
     private WorkflowJob scheduleAndFindBranchProject(WorkflowMultiBranchProject mp, String name) throws Exception {
         mp.scheduleBuild2(0).getFuture().get();
         WorkflowJob p = mp.getItem(name);
@@ -148,8 +166,20 @@ public class JobTearDownListenerTest {
         List<ParameterValue> params = action.getAllParameters();
         Assert.assertEquals(params.size(), 2);
         Assert.assertEquals(params.get(0).getName(), "git_url");
+        Assert.assertTrue(params.get(0).getValue().toString().contains("/private/var/folders"));
+        Assert.assertNotEquals(params.get(0).getValue(), "https://github.com/fabric8io/jenkins-pipeline-library");
         Assert.assertEquals(params.get(1).getName(), "branch_name");
         Assert.assertEquals(params.get(0).getValue(), sampleRepo.getRoot().toString());
         Assert.assertEquals(params.get(1).getValue(), "feature");
+    }
+
+    private void addGlobalLibrary() throws Exception {
+        j.configRoundtrip();
+        GlobalLibraries gl = GlobalLibraries.get();
+        LibraryConfiguration bar = new LibraryConfiguration("bar", new SCMSourceRetriever(new GitSCMSource(null, "https://github.com/fabric8io/jenkins-pipeline-library", "", "origin", "+refs/heads/*:refs/remotes/origin/*", "*", "", true)));
+        bar.setDefaultVersion("master");
+        bar.setImplicit(true);
+        bar.setAllowVersionOverride(false);
+        gl.setLibraries(Arrays.asList(bar));
     }
 }

@@ -24,6 +24,7 @@
 
 package com.fuzzpro.multibranchteardown;
 
+import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Cause;
@@ -34,6 +35,7 @@ import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.ParametersAction;
 import hudson.model.StringParameterValue;
+import hudson.model.TopLevelItem;
 import hudson.model.listeners.ItemListener;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.UserRemoteConfig;
@@ -44,9 +46,19 @@ import jenkins.branch.MultiBranchProject;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import jenkins.model.ParameterizedJobMixIn;
+import jenkins.plugins.git.GitSCMSource;
 import jenkins.scm.api.SCMHead;
+import jenkins.scm.api.SCMSource;
 import jenkins.scm.api.mixin.ChangeRequestSCMHead2;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.libs.GlobalLibraries;
+import org.jenkinsci.plugins.workflow.libs.LibraryConfiguration;
+import org.jenkinsci.plugins.workflow.libs.SCMRetriever;
+import org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Extension
@@ -130,25 +142,46 @@ public class JobTearDownListener extends ItemListener {
     }
 
     private String getRemote(Item item) {
-        String remoteURL = null;
-        SCM scm = null;
+        Collection<SCM> scms = new ArrayList<>();
         if (item instanceof WorkflowJob) {
             WorkflowJob job = (WorkflowJob) item;
-            scm = job.getTypicalSCM();
+            scms.addAll(job.getSCMs());
         } else if(item instanceof AbstractProject) {
-            scm = ((AbstractProject)item).getScm();
+            scms.add(((AbstractProject)item).getScm());
         }
-        if (scm != null) {
-            Logger.getLogger(LOGGER).fine("SCM Key: " + scm.getKey());
-        } else {
-            Logger.getLogger(LOGGER).fine("SCM Key: is null");
+
+        ArrayList<String> remoteURLs = new ArrayList<>();
+        for (SCM scm : scms) {
+            if (scm != null && scm instanceof GitSCM) {
+                GitSCM git = (GitSCM) scm;
+                UserRemoteConfig remote = git.getUserRemoteConfigs().get(0);
+                Logger.getLogger(LOGGER).fine("SCM URL: " + remote.getUrl());
+                remoteURLs.add(remote.getUrl());
+            }
         }
-        if (scm != null && scm instanceof GitSCM) {
-            GitSCM git = (GitSCM) scm;
-            UserRemoteConfig remote = git.getUserRemoteConfigs().get(0);
-            remoteURL = remote.getUrl();
+
+        GlobalLibraries gl = GlobalLibraries.get();
+        List<LibraryConfiguration> globalLibraries = gl.getLibraries();
+        for (LibraryConfiguration library : globalLibraries) {
+            if (library.getRetriever() instanceof SCMRetriever) {
+                SCM scm = ((SCMRetriever) library.getRetriever()).getScm();
+                if (scm != null && scm instanceof GitSCM) {
+                    GitSCM git = (GitSCM) scm;
+                    UserRemoteConfig remote = git.getUserRemoteConfigs().get(0);
+                    remoteURLs.remove(remote.getUrl());
+                }
+            } else if (library.getRetriever() instanceof SCMSourceRetriever) {
+                SCMSource scm = ((SCMSourceRetriever) library.getRetriever()).getScm();
+                if (scm != null && scm instanceof GitSCMSource) {
+                    GitSCMSource git = (GitSCMSource) scm;
+                    remoteURLs.remove(git.getRemote());
+                }
+            }
         }
-        return remoteURL;
+
+        //TODO handle FolderLibraries
+
+        return remoteURLs.get(0);
     }
 
 }
