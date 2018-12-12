@@ -166,7 +166,7 @@ public class JobTearDownListenerTest {
         List<ParameterValue> params = action.getAllParameters();
         Assert.assertEquals(params.size(), 2);
         Assert.assertEquals(params.get(0).getName(), "git_url");
-        Assert.assertTrue(params.get(0).getValue().toString().contains("/private/var/folders"));
+        Assert.assertFalse(params.get(0).getValue().toString().isEmpty());
         Assert.assertNotEquals(params.get(0).getValue(), "https://github.com/fabric8io/jenkins-pipeline-library");
         Assert.assertEquals(params.get(1).getName(), "branch_name");
         Assert.assertEquals(params.get(0).getValue(), sampleRepo.getRoot().toString());
