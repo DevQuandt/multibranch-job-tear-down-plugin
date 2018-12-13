@@ -132,9 +132,6 @@ public class JobTearDownListener extends ItemListener {
                 Branch branch = projectFactory.getBranch(job);
                 SCMHead head = branch.getHead();
                 branchName = branch.getName();
-                if (head instanceof ChangeRequestSCMHead2) {
-                    branchName = ((ChangeRequestSCMHead2) head).getOriginName();
-                }
             }
         }
         //TODO add support for other types of project
