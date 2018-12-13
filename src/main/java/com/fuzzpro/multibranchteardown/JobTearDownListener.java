@@ -130,7 +130,6 @@ public class JobTearDownListener extends ItemListener {
             BranchProjectFactory projectFactory = ((MultiBranchProject) parent).getProjectFactory();
             if (projectFactory.isProject(item)) {
                 Branch branch = projectFactory.getBranch(job);
-                SCMHead head = branch.getHead();
                 branchName = branch.getName();
             }
         }
